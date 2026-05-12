@@ -6,8 +6,7 @@
   --spacing: 0.1rem;
 
   /* フォント */
-  --font-sans: 'Noto Sans JP', sans-serif;
-  --font-mono: 'Lato', monospace;
+  --font-sans: 'Arimo Variable', sans-serif;
 
   /* font-size（基準幅: 1440px） */
   --text-170: clamp(8.8rem, 11.81vw, 17rem); /* 88〜170px */
@@ -25,11 +24,8 @@
   --color-*: initial;
 
   --color-white: #ffffff;
-  --color-black: #222222;
-  --color-bg-white: #f2f2f2;
-
-  --color-border: #d7d7d7;
-  --color-border-dark: #4b4b4b;
+  --color-black: #151515;
+  --color-gray: #acacac;
 }
 
 /* ベーススタイル */
