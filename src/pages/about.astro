@@ -1,5 +1,51 @@
 ---
+import PageTitle from '@/components/ui/PageTitle.astro';
 import Layout from '@layouts/Layout.astro';
+
+import aboutImgPc from '@assets/about/img-about.jpg';
+import aboutImgSp from '@assets/about/img-about-sp.jpg';
+import ResponsiveImage from '@/components/ui/ResponsiveImage.astro';
 ---
 
-<Layout title="About | Photographer Portfolio" description="仮想写真家のポートフォリオサイトです" />
+<Layout title="About | Photographer Portfolio" description="仮想写真家のポートフォリオサイトです">
+  <section
+    class="col-span-6 col-start-1 grid grid-cols-subgrid grid-rows-[auto_auto_1fr] items-start md:col-span-12"
+  >
+    <PageTitle title="About" />
+    <div
+      class="text-12 col-span-4 col-start-2 mt-16 flex h-553 flex-col justify-between md:col-span-12 md:col-start-1 md:mt-29 md:h-auto md:flex-row md:items-start md:gap-20"
+    >
+      <p class="md:flex-1">
+        Theo Lume is an international photographer known for capturing the subtle interplay of
+        light, shadow, and atmosphere. With a strong foundation in portraiture, street photography,
+        landscapes, and editorial work, his images reveal a timeless quality—blending raw
+        authenticity with a refined artistic vision.<br />Driven by a fascination with fleeting
+        moments, Theo often works with natural light, creating photographs that feel both cinematic
+        and intimate. His style merges film-like textures with modern sensibilities, evoking
+        nostalgia while remaining contemporary.
+      </p>
+      <p class="md:flex-1">
+        His work has attracted a diverse range of clients—from fashion brands and editorial
+        magazines to architects and cultural organizations—while also resonating deeply with
+        audiences on a personal level. Whether documenting the quiet beauty of urban life or the
+        vastness of natural landscapes, Theo Lume seeks to tell stories that transcend borders and
+        speak to universal human experience.
+      </p>
+    </div>
+    <div class="relative col-span-full mt-37 self-end md:-mx-30 md:mt-0 md:-mb-30">
+      <ResponsiveImage
+        mobileSrc={aboutImgSp}
+        desktopSrc={aboutImgPc}
+        alt=""
+        breakpoint={768}
+        imgClass="aspect-375/154 w-full md:aspect-1440/333"
+      />
+      <p
+        class="text-10 absolute bottom-17 left-20 col-span-2 w-[43%] mix-blend-difference md:bottom-30 md:left-30 md:w-[22%]"
+      >
+        All names, organizations, and other entities appearing on this site are entirely fictitious
+        and bear no relation whatsoever to any real persons or organizations.
+      </p>
+    </div>
+  </section></Layout
+>
