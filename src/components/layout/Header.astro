@@ -1,26 +1,25 @@
 ---
-import type { NavItem } from '~types/site';
-
-interface Props {
-  nav?: NavItem[];
-}
-
-const { nav = [] } = Astro.props;
+import { navItems } from '~types/site';
+const { pathname } = Astro.url;
 ---
 
-<header class="border-b border-gray-200">
-  <div class="mx-auto flex max-w-3xl items-center justify-between p-4">
-    <a href="/" class="font-bold tracking-tight">Astro Template</a>
+<header
+  class="absolute top-1/2 right-0 left-0 flex -translate-y-1/2 items-center justify-center px-30 md:justify-between"
+>
+  <p class="md:text-16a hidden md:block">Theo</p>
+  <ul class="flex justify-center gap-21">
     {
-      nav.length > 0 && (
-        <nav class="flex gap-4 text-sm text-gray-600">
-          {nav.map((item) => (
-            <a href={item.href} class="hover:text-gray-900">
-              {item.label}
-            </a>
-          ))}
-        </nav>
-      )
+      navItems.map((item) => (
+        <li>
+          <a
+            class:list={['text-13', pathname === item.href ? 'opacity-50' : 'opacity-100']}
+            href={item.href}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
     }
-  </div>
+  </ul>
+  <p class="md:text-16a hidden md:block">Lume</p>
 </header>
