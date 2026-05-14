@@ -1,6 +1,9 @@
-# Astro Template
+# AstroPractice_02
 
-汎用 Astro スターターテンプレート。**パッケージマネージャは pnpm**。
+## 概要
+
+このプロジェクトは、**Tomoya.Okada** さんのデザインを [Astro](https://astro.build/) で実装する練習用プロジェクトです。  
+Astro・TypeScript・Tailwind CSS を使った Web サイト構築の基礎を学ぶことを目的としています。
 
 ## 構成
 
