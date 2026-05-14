@@ -1,11 +1,74 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import type { NavItem } from '~types/site';
 
-const nav: NavItem[] = [
-  { label: 'Docs', href: 'https://docs.astro.build' },
-  { label: 'GitHub', href: 'https://github.com/withastro/astro' },
+import topImagePc from '@/assets/home/img-top.jpg';
+import topImageSp from '@/assets/home/img-top-sp.jpg';
+import ResponsiveImage from '@/components/ui/ResponsiveImage.astro';
+
+interface Selected {
+  title: string;
+  year: string;
+  href: string;
+}
+
+const selected: Selected[] = [
+  {
+    title: 'Charming Storefront',
+    year: '2022',
+    href: '/works/charming-storefront',
+  },
+  {
+    title: 'Party Celebration Scene',
+    year: '2022',
+    href: '/works/party-celebration-scene',
+  },
+  {
+    title: 'Modern Minimalist Interior',
+    year: '2022',
+    href: '/works/modern-minimalist-interior',
+  },
+  {
+    title: 'Urban Motion Blur',
+    year: '2022',
+    href: '/works/urban-motion-blur',
+  },
 ];
 ---
 
-<Layout title="Astro Template" description="汎用 Astro スターターテンプレート" nav={nav} />
+<Layout title="Photographer Portfolio" description="仮想写真家のポートフォリオサイトです">
+  <!-- Description -->
+  <section class="col-span-4 col-start-2 md:col-span-5 md:col-start-1 md:flex md:flex-col">
+    <p class="text-12">
+      Theo Lume is an international photographer who captures the fleeting interplay of light,
+      shadow, and atmosphere. Blending film-like textures with a modern sensibility, his work evokes
+      both intimacy and timeless beauty.
+    </p>
+
+    <!-- Selected -->
+    <div class="mt-54 md:mt-auto">
+      <h2 class="text-12">Selected</h2>
+      <ul class="mt-26">
+        {
+          selected.map((item) => (
+            <li class="not-first:pt-4">
+              <a class="border-gray text-12 flex justify-between border-b pb-4" href={item.href}>
+                <p>{item.title}</p>
+                <p>{item.year}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Image -->
+  <ResponsiveImage
+    mobileSrc={topImageSp}
+    desktopSrc={topImagePc}
+    alt=""
+    breakpoint={768}
+    class="col-span-full self-end md:col-span-4 md:col-start-9 md:self-auto"
+    imgClass="aspect-375/295 w-full md:aspect-unset md:h-[calc(100svh-(3rem*2))]"
+  />
+</Layout>
