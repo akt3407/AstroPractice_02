@@ -7,9 +7,10 @@ import '@fontsource-variable/arimo/wght.css';
 interface Props {
   title: string;
   description?: string;
+  mainClass?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, mainClass = '' } = Astro.props;
 ---
 
 <!doctype html>
@@ -24,7 +25,9 @@ const { title, description } = Astro.props;
   </head>
   <body class="text-gray bg-black">
     <Header />
-    <main class="grid h-svh grid-cols-4 gap-x-20 px-20 py-20 md:grid-cols-12 md:px-30 md:py-30">
+    <main
+      class={`grid h-svh grid-cols-4 gap-x-20 px-20 py-20 md:grid-cols-12 md:px-30 md:py-30 ${mainClass}`}
+    >
       <slot />
     </main>
     <Footer />
