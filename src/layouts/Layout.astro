@@ -24,9 +24,7 @@ const { title, description } = Astro.props;
   </head>
   <body class="text-gray bg-black">
     <Header />
-    <main
-      class="grid h-svh grid-cols-[0rem_repeat(4,1fr)_0rem] gap-x-20 py-20 md:grid-cols-12 md:px-30 md:py-30"
-    >
+    <main class="grid h-svh grid-cols-4 gap-x-20 px-20 py-20 md:grid-cols-12 md:px-30 md:py-30">
       <slot />
     </main>
     <Footer />
