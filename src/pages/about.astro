@@ -1,17 +1,17 @@
 ---
-import PageTitle from '@/components/ui/PageTitle.astro';
 import Layout from '@layouts/Layout.astro';
 
 import aboutImgPc from '@assets/about/img-about.jpg';
 import aboutImgSp from '@assets/about/img-about-sp.jpg';
-import ResponsiveImage from '@/components/ui/ResponsiveImage.astro';
+import ResponsiveImage from '@ui/common/ResponsiveImage.astro';
+import PageTitle from '@ui/common/PageTitle.astro';
 ---
 
 <Layout title="About | Photographer Portfolio" description="仮想写真家のポートフォリオサイトです">
   <section class="col-span-6 col-start-1 grid grid-rows-[auto_auto_1fr] items-start md:col-span-12">
     <PageTitle title="About" />
     <div
-      class="text-12 col-span-4 col-start-1 mt-16 flex h-553 flex-col justify-between md:col-span-12 md:col-start-1 md:mt-29 md:h-auto md:flex-row md:items-start md:gap-20"
+      class="text-12 col-span-4 col-start-1 mt-[1.9vh] flex h-[59vh] flex-col justify-between md:col-span-12 md:col-start-1 md:mt-29 md:h-auto md:flex-row md:items-start md:gap-20"
     >
       <p class="md:flex-1">
         Theo Lume is an international photographer known for capturing the subtle interplay of
@@ -31,9 +31,15 @@ import ResponsiveImage from '@/components/ui/ResponsiveImage.astro';
       </p>
     </div>
     <div
-      class="relative col-span-4 col-start-1 -mx-20 mt-37 self-end md:col-span-12 md:-mx-30 md:mt-0 md:-mb-30"
+      class="relative col-span-4 col-start-1 -mx-20 mt-[4.5vh] self-end md:col-span-12 md:-mx-30 md:mt-0 md:-mb-30"
     >
-      <ResponsiveImage mobileSrc={aboutImgSp} desktopSrc={aboutImgPc} alt="" breakpoint={768} />
+      <ResponsiveImage
+        mobileSrc={aboutImgSp}
+        desktopSrc={aboutImgPc}
+        alt=""
+        breakpoint={768}
+        imgClass="aspect-375/154 h-[18.9vh] md:aspect-1440/379 md:h-[42.1vh]"
+      />
       <p
         class="text-10 absolute bottom-17 left-20 col-span-2 w-[43%] mix-blend-difference md:bottom-30 md:left-30 md:w-[22%]"
       >

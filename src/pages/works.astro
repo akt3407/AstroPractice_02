@@ -1,15 +1,9 @@
 ---
-import PageTitle from '@/components/ui/PageTitle.astro';
+import WorkDescription from '@/components/ui/works/WorkDescription.astro';
+import WorkImage from '@/components/ui/works/WorkImage.astro';
 import Layout from '@layouts/Layout.astro';
-import { Image } from 'astro:assets';
-
-import imgWork01 from '@assets/works/img-work-01.jpg';
-import imgWork02 from '@assets/works/img-work-02.jpg';
-import imgWork03 from '@assets/works/img-work-03.jpg';
-import imgWork04 from '@assets/works/img-work-04.jpg';
-import imgWork05 from '@assets/works/img-work-05.jpg';
-import imgWork06 from '@assets/works/img-work-06.jpg';
-import imgWork07 from '@assets/works/img-work-07.jpg';
+import PageTitle from '@ui/common/PageTitle.astro';
+import { items, workImages } from '@/data/worksItems';
 ---
 
 <Layout
@@ -18,45 +12,20 @@ import imgWork07 from '@assets/works/img-work-07.jpg';
   mainClass="content-start"
 >
   <PageTitle title="Works" />
-  <div class="col-span-3 col-start-1 mt-60 -ml-20">
-    <Image src={imgWork01} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Charming Storefront</p>
-  </div>
-  <div class="col-span-3 col-start-2 mt-100">
-    <Image src={imgWork02} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Party Celebration Scene</p>
-  </div>
-  <div class="col-span-3 col-start-1 mt-100">
-    <h3 class="text-16b/normal">The Drama of Light and Shadow</h3>
-    <p class="text-12/[1.2] mt-12">
-      Masterfully uses fleeting natural light to create silhouettes and depth that tell a story.
-    </p>
-  </div>
-  <div class="col-span-3 col-start-1 mt-100">
-    <Image src={imgWork03} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Modern Minimalist Interior</p>
-  </div>
-  <div class="col-span-3 col-start-2 mt-100">
-    <Image src={imgWork04} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Minimalist Tote Bags</p>
-  </div>
-  <div class="col-span-4 col-start-1 mt-100 text-center">
-    <h3 class="text-16b/normal">Film-like Aesthetic</h3>
-    <p class="text-12/[1.2] mt-12">
-      Infuses digital photography with grain and soft tones, blending nostalgia with modern
-      sensibility.
-    </p>
-  </div>
-  <div class="col-span-4 col-start-1 mt-100">
-    <Image src={imgWork05} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Urban Motion Blur</p>
-  </div>
-  <div class="col-span-3 col-start-1 mt-100">
-    <Image src={imgWork06} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Urban Motion Blur</p>
-  </div>
-  <div class="col-span-3 col-start-2 mt-100 pb-166">
-    <Image src={imgWork07} alt={''} class="grayscale" />
-    <p class="text-12/normal mt-12 text-right">Urban Motion Blur</p>
-  </div>
+  {
+    items.map((it) =>
+      it.type === 'img' ? (
+        <WorkImage
+          src={workImages[it.imgIndex]}
+          title={it.title}
+          year={it.year}
+          class={it.cls}
+          imgClass={it.imgClass}
+          modalImgClass={it.modalImgClass}
+        />
+      ) : (
+        <WorkDescription title={it.title} description={it.body} class={it.cls} />
+      ),
+    )
+  }
 </Layout>

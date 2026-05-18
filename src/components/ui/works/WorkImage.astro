@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  title?: string;
+  year: string;
+  class?: string;
+  imgClass?: string;
+  modalImgClass?: string;
+}
+
+const { src, title, year, class: className, imgClass, modalImgClass } = Astro.props;
+---
+
+<div class={className}>
+  <button data-modal-open>
+    <Image src={src} alt="" class={`grayscale ${imgClass}`} />
+  </button>
+  <p class="text-12/normal mt-12 text-right">{title}</p>
+  <dialog
+    class="fixed inset-0 h-lvh max-h-none w-screen max-w-none flex-col items-center justify-center bg-black px-20 open:flex"
+  >
+    <div class="md:flex md:flex-col md:items-center">
+      <Image src={src} alt="" class={`max-h-[62svh] w-auto ${modalImgClass}`} />
+      <div class="text-gray mt-12 flex w-full justify-between">
+        <p class="text-12/normal">{title}</p>
+        <p class="text-12/normal">{year}</p>
+      </div>
+    </div>
+    <button
+      data-modal-close
+      class="absolute bottom-45 left-1/2 flex -translate-x-1/2 items-center gap-6"
+    >
+      <span>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <line x1="0.353553" y1="0.353539" x2="9.35355" y2="9.35354" stroke="white"></line>
+          <line x1="0.646447" y1="9.35354" x2="9.64645" y2="0.353539" stroke="white"></line>
+        </svg>
+      </span>
+      <span class="text-14/normal text-white">Close</span>
+    </button>
+  </dialog>
+</div>
+
+<script>
+  // open modal
+  document.querySelectorAll('[data-modal-open]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      btn.parentElement?.querySelector('dialog')?.showModal();
+    });
+  });
+
+  // close modal
+  document.querySelectorAll('[data-modal-close]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      btn.closest('dialog')?.close();
+    });
+  });
+</script>

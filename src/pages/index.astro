@@ -3,7 +3,7 @@ import Layout from '@layouts/Layout.astro';
 
 import topImagePc from '@/assets/home/img-top.jpg';
 import topImageSp from '@/assets/home/img-top-sp.jpg';
-import ResponsiveImage from '@/components/ui/ResponsiveImage.astro';
+import ResponsiveImage from '@ui/common/ResponsiveImage.astro';
 
 interface Selected {
   title: string;
@@ -69,6 +69,6 @@ const selected: Selected[] = [
     alt=""
     breakpoint={768}
     class="col-span-full -mx-20 self-end md:col-span-4 md:col-start-9 md:mx-0 md:self-auto"
-    imgClass="md:h-[calc(100svh-(6rem))]"
+    imgClass="aspect-375/295 h-295 md:aspect-447/840 md:h-[calc(100svh-(3.75rem))]"
   />
 </Layout>
