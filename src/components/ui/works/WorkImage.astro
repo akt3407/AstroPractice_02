@@ -4,7 +4,7 @@ import type { ImageMetadata } from 'astro';
 
 interface Props {
   src: ImageMetadata;
-  title?: string;
+  title: string;
   year: string;
   class?: string;
   imgClass?: string;
@@ -16,14 +16,26 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
 
 <div class={className}>
   <button data-modal-open>
-    <Image src={src} alt="" class={`grayscale ${imgClass}`} />
+    <Image
+      src={src}
+      alt={`${title}`}
+      width={src.width}
+      height={src.height}
+      class={`grayscale ${imgClass}`}
+    />
   </button>
   <p class="text-12/normal mt-12 text-right">{title}</p>
   <dialog
     class="fixed inset-0 h-lvh max-h-none w-screen max-w-none flex-col items-center justify-center bg-black px-20 open:flex"
   >
     <div class="md:flex md:flex-col md:items-center">
-      <Image src={src} alt="" class={`max-h-[62svh] w-auto ${modalImgClass}`} />
+      <Image
+        src={src}
+        alt={`${title}`}
+        width={src.width}
+        height={src.height}
+        class={`max-h-[62svh] w-auto ${modalImgClass}`}
+      />
       <div class="text-gray mt-12 flex w-full justify-between">
         <p class="text-12/normal">{title}</p>
         <p class="text-12/normal">{year}</p>

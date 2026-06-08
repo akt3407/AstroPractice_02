@@ -8,29 +8,24 @@ import ResponsiveImage from '@ui/common/ResponsiveImage.astro';
 interface Selected {
   title: string;
   year: string;
-  href: string;
 }
 
 const selected: Selected[] = [
   {
     title: 'Charming Storefront',
     year: '2022',
-    href: '/works/charming-storefront',
   },
   {
     title: 'Party Celebration Scene',
     year: '2022',
-    href: '/works/party-celebration-scene',
   },
   {
     title: 'Modern Minimalist Interior',
     year: '2022',
-    href: '/works/modern-minimalist-interior',
   },
   {
     title: 'Urban Motion Blur',
     year: '2022',
-    href: '/works/urban-motion-blur',
   },
 ];
 ---
@@ -51,10 +46,10 @@ const selected: Selected[] = [
         {
           selected.map((item) => (
             <li class="not-first:pt-4">
-              <a class="border-gray text-12 flex justify-between border-b pb-4" href={item.href}>
-                <p>{item.title}</p>
-                <p>{item.year}</p>
-              </a>
+              <p class="border-gray text-12 flex justify-between border-b pb-4">
+                <span>{item.title}</span>
+                <span>{item.year}</span>
+              </p>
             </li>
           ))
         }
