@@ -13,6 +13,7 @@
   --text-12: clamp(0.75rem, 1.11vw, 1rem); /* 12 ~ 16px */
   --text-13: clamp(0.8125rem, 0.97vw, 0.875rem); /* 13 ~ 14px */
   --text-14: 0.875rem; /* 14px */
+  --text-14b: clamp(0.875rem, 0.689rem + 0.76vw, 1.375rem); /* 14 ~ 22px */
   --text-16a: 1rem; /* 16px */
   --text-16b: clamp(1rem, 1.38vw, 1.25rem); /* 16 ~ 20px */
   --text-32: clamp(2rem, 4.44vw, 4rem); /* 32 ~ 64px */
@@ -73,4 +74,82 @@
     word-break: auto-phrase;
     /* text-wrap: pretty; */
   }
+}
+
+/* 要素の上下をマスクして、黒帯の下から出て上の黒帯の後ろに消えるように見せる */
+.loading-text-mask,
+.loading-image-mask {
+  overflow: hidden;
+}
+
+.loading-text {
+  animation: text-rise 5.5s ease-out forwards;
+  will-change: transform;
+}
+
+.loading-image {
+  /* delay中(0〜0.5s)も0%キーフレームの状態を適用し、素の画像が一瞬見えるのを防ぐ */
+  animation: image-rise 5s ease-out 0.5s both;
+  will-change: transform, clip-path;
+}
+
+@keyframes text-rise {
+  0%,
+  30% {
+    transform: translateY(120%);
+  }
+  48%,
+  74% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-120%);
+  }
+}
+
+@keyframes image-rise {
+  0%,
+  30% {
+    transform: translateY(120%);
+    clip-path: inset(0 0 0 0);
+  }
+  48%,
+  74% {
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    transform: translateY(0);
+    clip-path: inset(50% 0 50% 0);
+  }
+}
+
+.loading-exit {
+  /* text-riseが消え始める74%地点(5s×0.74=3.7s)に合わせて背景も上がり始める */
+  animation: screen-rise 0.8s ease-in-out 5s forwards;
+  will-change: transform;
+}
+
+@keyframes screen-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-text,
+  .loading-image,
+  .loading-exit {
+    animation: none;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+/* セッション内で表示済みの場合はLoadingを表示しない */
+.loading-skip #loading {
+  display: none;
 }
