@@ -33,3 +33,22 @@ const { title, description, mainClass = '' } = Astro.props;
     <Footer />
   </body>
 </html>
+
+<script>
+  import Lenis from 'lenis';
+
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    const lenis = new Lenis({
+      autoRaf: true,
+      duration: 1.5,
+      lerp: 0.12,
+      smoothWheel: true,
+      syncTouch: false,
+      wheelMultiplier: 0.8,
+    });
+
+    (window as unknown as { lenis: Lenis }).lenis = lenis;
+  }
+</script>
