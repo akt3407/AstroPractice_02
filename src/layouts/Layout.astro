@@ -1,9 +1,9 @@
 ---
 import '@styles/global.css';
 import Header from '@layout/Header.astro';
-import Footer from '@layout/Footer.astro';
 import '@fontsource-variable/arimo/wght.css';
 import Loading from '@/components/ui/Loading.astro';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -12,6 +12,26 @@ interface Props {
 }
 
 const { title, description, mainClass = '' } = Astro.props;
+
+const FADE_OUT_MS = 400;
+const FADE_IN_MS = 400;
+const fadeOut = {
+  name: 'astroFadeOut',
+  duration: `${FADE_OUT_MS}ms`,
+  easing: 'ease',
+  fillMode: 'forwards',
+};
+const fadeIn = {
+  name: 'astroFadeIn',
+  duration: `${FADE_IN_MS}ms`,
+  delay: `${FADE_OUT_MS}ms`,
+  easing: 'ease',
+  fillMode: 'backwards',
+};
+const pageFade = {
+  forwards: { old: fadeOut, new: fadeIn },
+  backwards: { old: fadeOut, new: fadeIn },
+};
 ---
 
 <!doctype html>
@@ -23,6 +43,7 @@ const { title, description, mainClass = '' } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     {description && <meta name="description" content={description} />}
     <title>{title}</title>
+    <ClientRouter />
     <script is:inline>
       // セッション内で表示済みなら、bodyの描画前にLoadingを隠すクラスを付けてちらつきを防ぐ
       if (sessionStorage.getItem('loading-shown')) {
@@ -35,10 +56,10 @@ const { title, description, mainClass = '' } = Astro.props;
     <Header />
     <main
       class={`grid h-svh grid-cols-4 gap-x-20 px-20 pt-20 md:grid-cols-12 md:px-30 md:py-30 ${mainClass}`}
+      transition:animate={pageFade}
     >
       <slot />
     </main>
-    <Footer />
   </body>
 </html>
 

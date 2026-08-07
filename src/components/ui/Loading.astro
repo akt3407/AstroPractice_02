@@ -10,7 +10,7 @@ import LoadingImage from '@assets/img-loading.jpg';
     <div class="flex w-full items-center justify-between">
       <span class="loading-text-mask">
         <p class="loading-item loading-text text-14b font-bold">
-          Photographer<br class="block md:hidden" /> PortFolio
+          Photographer<br class="block md:hidden" />PortFolio
         </p>
       </span>
       <span class="loading-image-mask">
@@ -27,58 +27,63 @@ import LoadingImage from '@assets/img-loading.jpg';
 </div>
 
 <script>
-  const screenEl = document.getElementById('loading');
-  const html = document.documentElement;
+  // astro:page-loadは初期表示・ClientRouterでのページ遷移のどちらでも発火するため、
+  // スクリプトの再実行に頼らずページ遷移のたびにこの判定を行える
+  document.addEventListener('astro:page-load', () => {
+    const screenEl = document.getElementById('loading');
+    if (!screenEl) return;
 
-  if (screenEl) {
-    if (html.classList.contains('loading-skip')) {
-      // 初期画面で表示済み: head内の同期スクリプトで既に非表示にしているのでDOMだけ片付ける
+    const html = document.documentElement;
+
+    if (sessionStorage.getItem('loading-shown')) {
+      // 表示済みなら即座に片付ける
       screenEl.remove();
+      return;
+    }
+
+    // 初期画面で1回だけ表示するため、セッション内で表示済みであることを記録する
+    sessionStorage.setItem('loading-shown', '1');
+
+    // ローディング中は背面のスクロールを止める
+    html.classList.add('overflow-hidden');
+
+    const bgEl = screenEl.querySelector<HTMLElement>('.loading-bg');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const remove = () => {
+      screenEl.remove();
+      html.classList.remove('overflow-hidden');
+    };
+
+    if (prefersReducedMotion || !bgEl) {
+      // reduced-motion時はCSSアニメーションが無く animationend が発火しないためタイマーで対応
+      setTimeout(remove, 800);
     } else {
-      // 初期画面で1回だけ表示するため、セッション内で表示済みであることを記録する
-      sessionStorage.setItem('loading-shown', '1');
-
-      // ローディング中は背面のスクロールを止める
-      html.classList.add('overflow-hidden');
-
-      const bgEl = screenEl.querySelector<HTMLElement>('.loading-bg');
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      const remove = () => {
-        screenEl.remove();
-        html.classList.remove('overflow-hidden');
+      // テキスト・画像(コンテンツ)と背景(screen-rise)は別レイヤーで独立してアニメーションするため、
+      // 両方のanimationendを待ってから消す
+      let itemsDone = false;
+      let bgDone = false;
+      const tryRemove = () => {
+        if (itemsDone && bgDone) remove();
       };
 
-      if (prefersReducedMotion || !bgEl) {
-        // reduced-motion時はCSSアニメーションが無く animationend が発火しないためタイマーで対応
-        setTimeout(remove, 800);
-      } else {
-        // テキスト・画像(コンテンツ)と背景(screen-rise)は別レイヤーで独立してアニメーションするため、
-        // 両方のanimationendを待ってから消す
-        let itemsDone = false;
-        let bgDone = false;
-        const tryRemove = () => {
-          if (itemsDone && bgDone) remove();
-        };
-
-        const items = screenEl.querySelectorAll('.loading-item');
-        let doneCount = 0;
-        items.forEach((item) => {
-          item.addEventListener('animationend', () => {
-            doneCount += 1;
-            if (doneCount === items.length) {
-              itemsDone = true;
-              tryRemove();
-            }
-          });
+      const items = screenEl.querySelectorAll('.loading-item');
+      let doneCount = 0;
+      items.forEach((item) => {
+        item.addEventListener('animationend', () => {
+          doneCount += 1;
+          if (doneCount === items.length) {
+            itemsDone = true;
+            tryRemove();
+          }
         });
+      });
 
-        bgEl.addEventListener('animationend', (event: AnimationEvent) => {
-          if (event.target !== bgEl) return;
-          bgDone = true;
-          tryRemove();
-        });
-      }
+      bgEl.addEventListener('animationend', (event: AnimationEvent) => {
+        if (event.target !== bgEl) return;
+        bgDone = true;
+        tryRemove();
+      });
     }
-  }
+  });
 </script>
