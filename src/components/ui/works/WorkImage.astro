@@ -14,7 +14,7 @@ interface Props {
 const { src, title, year, class: className, imgClass, modalImgClass } = Astro.props;
 ---
 
-<div class={className}>
+<div class={className} data-work-item>
   <button data-modal-open>
     <div class="overflow-hidden">
       <Image
@@ -28,54 +28,256 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
   </button>
   <p class="text-12/normal mt-12 text-right">{title}</p>
   <dialog
-    class="fixed inset-0 h-lvh max-h-none w-screen max-w-none flex-col items-center justify-center bg-black px-20 open:flex"
+    data-work-modal
+    class="fixed inset-0 h-lvh max-h-none w-screen max-w-none overflow-hidden bg-black open:block"
   >
-    <div class="md:flex md:flex-col md:items-center">
-      <Image
-        src={src}
-        alt={`${title}`}
-        width={src.width}
-        height={src.height}
-        class={`max-h-[62svh] w-auto ${modalImgClass}`}
-      />
-      <div class="text-gray mt-12 flex w-full justify-between">
-        <p class="text-12/normal">{title}</p>
-        <p class="text-12/normal">{year}</p>
+    <div data-modal-inner class="flex h-full w-full flex-col items-center justify-center px-20">
+      <div class="md:flex md:flex-col md:items-center">
+        <Image
+          data-modal-image
+          src={src}
+          alt={`${title}`}
+          width={src.width}
+          height={src.height}
+          class={`max-h-[62svh] w-auto ${modalImgClass}`}
+        />
+        <div data-modal-meta class="text-gray mt-12 flex w-full justify-between">
+          <p class="text-12/normal">{title}</p>
+          <p class="text-12/normal">{year}</p>
+        </div>
       </div>
+      <button
+        data-modal-close
+        data-modal-meta
+        class="absolute bottom-45 left-1/2 flex -translate-x-1/2 items-center gap-6"
+      >
+        <span>
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <line x1="0.353553" y1="0.353539" x2="9.35355" y2="9.35354" stroke="white"></line>
+            <line x1="0.646447" y1="9.35354" x2="9.64645" y2="0.353539" stroke="white"></line>
+          </svg>
+        </span>
+        <span class="text-14/normal text-white">Close</span>
+      </button>
     </div>
-    <button
-      data-modal-close
-      class="absolute bottom-45 left-1/2 flex -translate-x-1/2 items-center gap-6"
-    >
-      <span>
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 10 10"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <line x1="0.353553" y1="0.353539" x2="9.35355" y2="9.35354" stroke="white"></line>
-          <line x1="0.646447" y1="9.35354" x2="9.64645" y2="0.353539" stroke="white"></line>
-        </svg>
-      </span>
-      <span class="text-14/normal text-white">Close</span>
-    </button>
   </dialog>
 </div>
 
+<style>
+  /* モーダルの開閉アニメーション
+   *
+   * 開く（数値は下の変数どおり）
+   *   幕     0 ─────────────────────────────── 1300ms
+   *   画像        600 ──────────── 1400ms
+   *   文字/Close                   1400 ─────── 1900ms
+   *
+   * 閉じる
+   *   中身   0 ──── 300ms
+   *   幕     0 ─────────────────────────────── 1300ms
+   */
+  dialog {
+    --ease: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-curtain: 1300ms; /* 黒い幕の上下動 */
+    --delay-image: 600ms; /* 幕が動き出してから画像が出始めるまで */
+    --dur-image: 800ms; /* 画像のワイプ */
+    --dur-meta: 500ms; /* 文字・Closeのフェードイン */
+    --dur-out: 300ms; /* 閉じるときに中身が消える時間 */
+  }
+
+  /* 黒い幕（dialog本体）が下から上へせり上がり、ページに重なる */
+  dialog[open] {
+    animation: work-modal-curtain-up var(--dur-curtain) var(--ease) both;
+    will-change: transform;
+  }
+
+  /* 中身は幕と逆向きに同じ量動かし、画面上では静止させる。
+     これで幕の動きと中身の出現を切り離せる */
+  dialog[open] [data-modal-inner] {
+    animation: work-modal-content-hold var(--dur-curtain) var(--ease) both;
+    will-change: transform;
+  }
+
+  /* 画像は幕とは別のタイミングで、下端から上へワイプして現れる */
+  dialog[open] [data-modal-image] {
+    animation: work-modal-image-reveal var(--dur-image) var(--ease) var(--delay-image) both;
+    will-change: clip-path;
+  }
+
+  /* 文字とCloseボタンは画像が出きってから、その場でふわっと。
+     開始時刻は画像の終了時刻から算出するので、画像側を変えれば自動で追従する */
+  dialog[open] [data-modal-meta] {
+    animation: work-modal-meta-in var(--dur-meta) var(--ease)
+      calc(var(--delay-image) + var(--dur-image)) both;
+    will-change: opacity;
+  }
+
+  /* 閉じるときは幕を逆再生（duration/easingは上のルールから引き継ぐ） */
+  dialog[open].is-closing {
+    animation-name: work-modal-curtain-down;
+  }
+
+  /* 中身は幕が降りきるのを待たず、先に手早く消す */
+  dialog[open].is-closing [data-modal-inner] {
+    animation:
+      work-modal-content-release var(--dur-curtain) var(--ease) both,
+      work-modal-content-out var(--dur-out) var(--ease) both;
+  }
+
+  /* UA既定の半透明backdropを消して、背面ページをそのまま見せる */
+  dialog::backdrop {
+    background: transparent;
+  }
+
+  @keyframes work-modal-curtain-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes work-modal-curtain-down {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  /* 幕と逆向き・同量。合成結果は常にゼロなので画面上では動かない */
+  @keyframes work-modal-content-hold {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes work-modal-content-release {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  /* inset(top right bottom left)。topを100%→0にすると下端から上へ開いていく */
+  @keyframes work-modal-image-reveal {
+    from {
+      clip-path: inset(100% 0 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes work-modal-meta-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* content-holdがtransformを使っているのでtranslateプロパティ側で動かす */
+  @keyframes work-modal-content-out {
+    from {
+      opacity: 1;
+      translate: 0 0;
+    }
+    to {
+      opacity: 0;
+      translate: 0 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog[open],
+    dialog[open].is-closing,
+    dialog[open] [data-modal-inner],
+    dialog[open] [data-modal-image],
+    dialog[open] [data-modal-meta],
+    dialog[open].is-closing [data-modal-inner] {
+      animation: none;
+    }
+  }
+</style>
+
 <script>
-  // open modal
-  document.querySelectorAll('[data-modal-open]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      btn.parentElement?.querySelector('dialog')?.showModal();
-    });
+  type LenisLike = { start(): void; stop(): void };
+
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const getLenis = () => (window as unknown as { lenis?: LenisLike }).lenis;
+
+  function openModal(dialog: HTMLDialogElement) {
+    dialog.classList.remove('is-closing');
+    dialog.showModal();
+    // showModalはネイティブスクロールしか止めないのでLenisも明示的に停止する
+    getLenis()?.stop();
+  }
+
+  function closeModal(dialog: HTMLDialogElement) {
+    if (prefersReducedMotion) {
+      finishClose(dialog);
+      return;
+    }
+    dialog.classList.add('is-closing');
+
+    const onEnd = (e: AnimationEvent) => {
+      if (e.target !== dialog) return; // 中身のアニメーションは無視
+      dialog.removeEventListener('animationend', onEnd);
+      finishClose(dialog);
+    };
+    dialog.addEventListener('animationend', onEnd);
+  }
+
+  function finishClose(dialog: HTMLDialogElement) {
+    dialog.classList.remove('is-closing');
+    dialog.close();
+    getLenis()?.start();
+  }
+
+  // documentへの委譲。ページ遷移でDOMが差し替わっても登録し直し不要
+  document.addEventListener('click', (e) => {
+    const el = e.target as Element | null;
+
+    const openBtn = el?.closest('[data-modal-open]');
+    if (openBtn) {
+      const dialog = openBtn
+        .closest('[data-work-item]')
+        ?.querySelector<HTMLDialogElement>('[data-work-modal]');
+      if (dialog) openModal(dialog);
+      return;
+    }
+
+    const closeBtn = el?.closest('[data-modal-close]');
+    if (closeBtn) {
+      const dialog = closeBtn.closest('dialog');
+      if (dialog) closeModal(dialog);
+    }
   });
 
-  // close modal
-  document.querySelectorAll('[data-modal-close]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      btn.closest('dialog')?.close();
-    });
-  });
+  // Escキーの既定の即時closeを止めて、閉じるアニメーションを挟む
+  // cancelはバブルしないのでキャプチャフェーズで拾う
+  document.addEventListener(
+    'cancel',
+    (e) => {
+      const dialog = e.target as HTMLDialogElement | null;
+      if (!dialog?.matches('[data-work-modal]')) return;
+      e.preventDefault();
+      closeModal(dialog);
+    },
+    true,
+  );
 </script>
