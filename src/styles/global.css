@@ -37,7 +37,6 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    scroll-behavior: smooth;
     -ms-overflow-style: none;
     scrollbar-width: none;
   }

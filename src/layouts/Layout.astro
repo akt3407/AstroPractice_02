@@ -35,7 +35,7 @@ const pageFade = {
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang="ja" transition:animate={pageFade} data-astro-transition="forward">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -56,7 +56,6 @@ const pageFade = {
     <Header />
     <main
       class={`grid h-svh grid-cols-4 gap-x-20 px-20 pt-20 md:grid-cols-12 md:px-30 md:py-30 ${mainClass}`}
-      transition:animate={pageFade}
     >
       <slot />
     </main>
@@ -76,6 +75,7 @@ const pageFade = {
       smoothWheel: true,
       syncTouch: false,
       wheelMultiplier: 0.8,
+      naiveDimensions: true,
     });
 
     (window as unknown as { lenis: Lenis }).lenis = lenis;
