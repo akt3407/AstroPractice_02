@@ -1,31 +1,40 @@
 ---
 import Layout from '@layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 
 import topImagePc from '@/assets/home/img-top.jpg';
 import topImageSp from '@/assets/home/img-top-sp.jpg';
 import ResponsiveImage from '@ui/common/ResponsiveImage.astro';
+import { workImages } from '@/data/worksItems';
 
 interface Selected {
   title: string;
   year: string;
+  image: ImageMetadata;
 }
 
+// imageはworks側の画像と対応（img-work-01 / 02 / 03 / 05）
 const selected: Selected[] = [
   {
     title: 'Charming Storefront',
     year: '2022',
+    image: workImages[0],
   },
   {
     title: 'Party Celebration Scene',
     year: '2022',
+    image: workImages[1],
   },
   {
     title: 'Modern Minimalist Interior',
     year: '2022',
+    image: workImages[2],
   },
   {
     title: 'Urban Motion Blur',
     year: '2022',
+    image: workImages[4],
   },
 ];
 ---
@@ -42,14 +51,19 @@ const selected: Selected[] = [
     <!-- Selected -->
     <div class="mt-54 md:mt-auto">
       <h2 class="text-12">Selected</h2>
-      <ul class="mt-26">
+      <ul class="mt-26" data-selected-list>
         {
-          selected.map((item) => (
+          selected.map((item, i) => (
             <li class="not-first:pt-4">
-              <p class="border-gray text-12 flex justify-between border-b pb-4">
+              <button
+                type="button"
+                data-selected-item={i}
+                aria-pressed="false"
+                class="border-gray text-12 flex w-full cursor-pointer justify-between border-b pb-4 transition-opacity duration-500 aria-pressed:opacity-50"
+              >
                 <span>{item.title}</span>
                 <span>{item.year}</span>
-              </p>
+              </button>
             </li>
           ))
         }
@@ -58,12 +72,97 @@ const selected: Selected[] = [
   </section>
 
   <!-- Image -->
-  <ResponsiveImage
-    mobileSrc={topImageSp}
-    desktopSrc={topImagePc}
-    alt=""
-    breakpoint={768}
-    class="col-span-full -mx-20 self-end md:col-span-4 md:col-start-9 md:mx-0 md:self-auto"
-    imgClass="aspect-375/295 h-295 md:aspect-447/840 md:h-[calc(100svh-(3.75rem))]"
-  />
+  <div
+    data-selected-stack
+    class="relative col-span-full -mx-20 self-end md:col-span-4 md:col-start-9 md:mx-0 md:self-auto"
+  >
+    <!-- デフォルト画像。常に最背面に置き、この高さがスタック全体の基準になる -->
+    <ResponsiveImage
+      mobileSrc={topImageSp}
+      desktopSrc={topImagePc}
+      alt=""
+      breakpoint={768}
+      class="block"
+      imgClass="aspect-375/295 h-295 md:aspect-447/840 md:h-[calc(100svh-(3.75rem))]"
+    />
+
+    <!-- Selectedの選択画像。重ねておいてopacityだけ切り替える -->
+    {
+      selected.map((item, i) => (
+        <Image
+          src={item.image}
+          alt=""
+          width={900}
+          data-selected-image={i}
+          class="absolute inset-0 h-full w-full object-cover grayscale"
+        />
+      ))
+    }
+  </div>
 </Layout>
+
+<style>
+  /* h-fullでbaseのheight:autoを打ち消しているので、ここではopacityだけ扱う */
+  [data-selected-image] {
+    opacity: 0;
+    transition: opacity 700ms ease;
+    will-change: opacity;
+  }
+
+  [data-selected-image].is-active {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-selected-image] {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const FADE_MS = 700; // <style>のtransition-durationと揃える
+
+  function setImage(stack: HTMLElement, index: string | null) {
+    const next =
+      index === null ? null : stack.querySelector<HTMLElement>(`[data-selected-image="${index}"]`);
+
+    const actives = [...stack.querySelectorAll<HTMLElement>('[data-selected-image].is-active')];
+    if (actives.length === 1 && actives[0] === next) return;
+
+    if (next) {
+      // 新しい画像を必ず上に重ねる。DOM順に依存させないため明示的にz-indexを振る
+      actives.forEach((el) => (el.style.zIndex = '1'));
+      next.style.zIndex = '2';
+      next.classList.add('is-active');
+    }
+
+    // 前の画像は新しい画像が出きってから消す。
+    // 同時にクロスフェードさせると中間で両方が半透明になり、背面の下地が透けてしまう
+    const hidePrev = () => actives.forEach((el) => el !== next && el.classList.remove('is-active'));
+
+    if (next) window.setTimeout(hidePrev, FADE_MS);
+    else hidePrev(); // 選択解除。フェードアウトしてデフォルト画像が見える
+  }
+
+  // documentへの委譲。ClientRouterでDOMが差し替わっても登録し直し不要
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element | null)?.closest<HTMLElement>('[data-selected-item]');
+    if (!btn) return;
+
+    const list = btn.closest('[data-selected-list]');
+    const stack = document.querySelector<HTMLElement>('[data-selected-stack]');
+    if (!list || !stack) return;
+
+    const wasActive = btn.getAttribute('aria-pressed') === 'true';
+
+    // テキストはいったん全部戻してから、選んだものだけopacity 0.5にする
+    list
+      .querySelectorAll('[data-selected-item]')
+      .forEach((el) => el.setAttribute('aria-pressed', 'false'));
+    if (!wasActive) btn.setAttribute('aria-pressed', 'true');
+
+    // 同じ項目をもう一度押したら選択解除
+    setImage(stack, wasActive ? null : (btn.dataset.selectedItem ?? null));
+  });
+</script>
