@@ -13,7 +13,7 @@ import LoadingImage from '@assets/img-loading.jpg';
           Photographer<br class="block md:hidden" />PortFolio
         </p>
       </span>
-      <span class="loading-image-mask">
+      <span class="loading-image-mask relative block">
         <Image
           src={LoadingImage}
           alt=""
@@ -21,10 +21,112 @@ import LoadingImage from '@assets/img-loading.jpg';
           height={129}
           class="loading-item loading-image h-62 w-69 md:h-129 md:w-128"
         />
+        <span class="loading-curtain absolute inset-0 bg-black"></span>
       </span>
     </div>
   </div>
 </div>
+
+<style>
+  /* 要素の上下をマスクして、黒帯の下から出て上の黒帯の後ろに消えるように見せる */
+  .loading-text-mask {
+    overflow: hidden;
+  }
+
+  /* 上へ抜けていく黒帯(.loading-curtain)を画像の外に出さないためのマスク */
+  .loading-image-mask {
+    overflow: hidden;
+  }
+
+  .loading-text {
+    animation: text-rise 5.5s ease-out forwards;
+    will-change: transform;
+  }
+
+  .loading-image {
+    /* 画像自体は動かさず、退場時に上下から閉じる動きだけを持つ */
+    animation: image-exit 5s ease-out 0.5s both;
+    will-change: clip-path;
+  }
+
+  /* 画像を覆う黒帯。上へ抜けることで画像が下から徐々に見えてくる */
+  .loading-curtain {
+    /* delay中(0〜0.5s)も0%キーフレームの状態を適用し、素の画像が一瞬見えるのを防ぐ */
+    animation: curtain-up 5s ease-out 0.5s both;
+    will-change: transform;
+  }
+
+  @keyframes text-rise {
+    0%,
+    30% {
+      transform: translateY(120%);
+    }
+    48%,
+    74% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-120%);
+    }
+  }
+
+  @keyframes image-exit {
+    0%,
+    74% {
+      clip-path: inset(0 0 0 0);
+    }
+    100% {
+      clip-path: inset(50% 0 50% 0);
+    }
+  }
+
+  /* text-riseがせり上がるのと同じ30%〜48%の区間で黒帯を上へ抜く */
+  @keyframes curtain-up {
+    0%,
+    30% {
+      transform: translateY(0);
+    }
+    48%,
+    100% {
+      transform: translateY(-100%);
+    }
+  }
+
+  .loading-exit {
+    /* text-riseが消え始める74%地点(5s×0.74=3.7s)に合わせて背景も上がり始める */
+    animation: screen-rise 0.9s ease-in-out 5.5s forwards;
+    will-change: transform;
+  }
+
+  @keyframes screen-rise {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loading-text,
+    .loading-image,
+    .loading-exit {
+      animation: none;
+      transform: none;
+      clip-path: none;
+    }
+
+    /* アニメーションを止めると黒帯が画像を覆ったままになるため非表示にする */
+    .loading-curtain {
+      display: none;
+    }
+  }
+
+  /* セッション内で表示済みの場合はLoadingを表示しない */
+  .loading-skip #loading {
+    display: none;
+  }
+</style>
 
 <script>
   // astro:page-loadは初期表示・ClientRouterでのページ遷移のどちらでも発火するため、
@@ -57,7 +159,7 @@ import LoadingImage from '@assets/img-loading.jpg';
 
     if (prefersReducedMotion || !bgEl) {
       // reduced-motion時はCSSアニメーションが無く animationend が発火しないためタイマーで対応
-      setTimeout(remove, 800);
+      setTimeout(remove, 900);
     } else {
       // テキスト・画像(コンテンツ)と背景(screen-rise)は別レイヤーで独立してアニメーションするため、
       // 両方のanimationendを待ってから消す
