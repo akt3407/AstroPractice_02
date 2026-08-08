@@ -16,13 +16,15 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
 
 <div class={className}>
   <button data-modal-open>
-    <Image
-      src={src}
-      alt={`${title}`}
-      width={src.width}
-      height={src.height}
-      class={`grayscale ${imgClass}`}
-    />
+    <div class="overflow-hidden">
+      <Image
+        src={src}
+        alt={`${title}`}
+        width={src.width}
+        height={src.height}
+        class={`grayscale transition-transform duration-700 ${imgClass} hover:scale-105`}
+      />
+    </div>
   </button>
   <p class="text-12/normal mt-12 text-right">{title}</p>
   <dialog
