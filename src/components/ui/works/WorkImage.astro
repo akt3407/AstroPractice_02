@@ -77,9 +77,14 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
    *   画像        600 ──────────── 1400ms
    *   文字/Close                   1400 ─────── 1900ms
    *
-   * 閉じる
-   *   中身   0 ──── 300ms
-   *   幕     0 ─────────────────────────────── 1300ms
+   * 閉じる（開くときと同じく幕が主役。押した瞬間から動き、向きだけ反転）
+   *   文字/Close 0 ── 250ms
+   *   幕         0 ─────────────────────── 1300ms
+   *   画像          150 ──────── 700ms
+   *
+   * 閉じる側で画像を前倒し・短縮しているのは、幕の上端より画像のワイプを
+   * 先行させないと、消えていく部分が幕の外（＝背景ページ側）に出てしまい、
+   * ワイプが一切見えずフェードのように見えてしまうため。
    */
   dialog {
     --ease: cubic-bezier(0.65, 0, 0.35, 1);
@@ -87,7 +92,10 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
     --delay-image: 600ms; /* 幕が動き出してから画像が出始めるまで */
     --dur-image: 800ms; /* 画像のワイプ */
     --dur-meta: 500ms; /* 文字・Closeのフェードイン */
-    --dur-out: 300ms; /* 閉じるときに中身が消える時間 */
+
+    --dur-meta-out: 250ms; /* 文字・Closeのフェードアウト */
+    --delay-image-out: 150ms; /* 文字が抜け始めてから画像がワイプするまで */
+    --dur-image-out: 550ms; /* 画像のワイプ（幕に追い越されない長さ） */
   }
 
   /* 黒い幕（dialog本体）が下から上へせり上がり、ページに重なる */
@@ -117,16 +125,34 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
     will-change: opacity;
   }
 
-  /* 閉じるときは幕を逆再生（duration/easingは上のルールから引き継ぐ） */
+  /* ここから閉じる側。開くときと同じく幕が主役で、押した瞬間から動き出す。
+     easingの--easeは点対称なcubic-bezierなので、向きを変えてもそのまま使える
+     （(x1,y1,x2,y2)を反転した(1-x2,1-y2,1-x1,1-y1)が同じ値になる）。
+     なお animation-name を変えずにdirectionやdelayだけ差し替えても
+     アニメーションは再スタートしないので、閉じる側は別名のkeyframesを当てている */
+
+  /* 幕は開くときの鏡像。上から下へ、同じ長さ・同じイージングで抜けていく */
   dialog[open].is-closing {
-    animation-name: work-modal-curtain-down;
+    animation: work-modal-curtain-down var(--dur-curtain) var(--ease) both;
   }
 
-  /* 中身は幕が降りきるのを待たず、先に手早く消す */
+  /* 中身は開くときと同様、幕と逆向きに動かして画面上では静止させる。
+     幕が下がるぶん、中身は上から順に幕の窓の外へ出て隠れていく */
   dialog[open].is-closing [data-modal-inner] {
-    animation:
-      work-modal-content-release var(--dur-curtain) var(--ease) both,
-      work-modal-content-out var(--dur-out) var(--ease) both;
+    animation: work-modal-content-release var(--dur-curtain) var(--ease) both;
+    /* 閉じアニメ中のCloseボタン連打を防ぐ（透明でもクリックは通るため） */
+    pointer-events: none;
+  }
+
+  /* 画像は文字に続けて上端→下へワイプ。
+     幕が降りてくるより速く消えるので、黒い幕を背にワイプがはっきり見える */
+  dialog[open].is-closing [data-modal-image] {
+    animation: work-modal-image-hide var(--dur-image-out) var(--ease) var(--delay-image-out) both;
+  }
+
+  /* 文字とCloseボタンが真っ先に消える */
+  dialog[open].is-closing [data-modal-meta] {
+    animation: work-modal-meta-out var(--dur-meta-out) var(--ease) both;
   }
 
   /* UA既定の半透明backdropを消して、背面ページをそのまま見せる */
@@ -181,6 +207,16 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
     }
   }
 
+  /* image-revealの逆。topを0→100%で上端から下へ閉じていく */
+  @keyframes work-modal-image-hide {
+    from {
+      clip-path: inset(0 0 0 0);
+    }
+    to {
+      clip-path: inset(100% 0 0 0);
+    }
+  }
+
   @keyframes work-modal-meta-in {
     from {
       opacity: 0;
@@ -190,15 +226,12 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
     }
   }
 
-  /* content-holdがtransformを使っているのでtranslateプロパティ側で動かす */
-  @keyframes work-modal-content-out {
+  @keyframes work-modal-meta-out {
     from {
       opacity: 1;
-      translate: 0 0;
     }
     to {
       opacity: 0;
-      translate: 0 2.5rem;
     }
   }
 
@@ -208,7 +241,9 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
     dialog[open] [data-modal-inner],
     dialog[open] [data-modal-image],
     dialog[open] [data-modal-meta],
-    dialog[open].is-closing [data-modal-inner] {
+    dialog[open].is-closing [data-modal-inner],
+    dialog[open].is-closing [data-modal-image],
+    dialog[open].is-closing [data-modal-meta] {
       animation: none;
     }
   }
