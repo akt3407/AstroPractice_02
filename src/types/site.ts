@@ -11,7 +11,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Works', href: '/works' },
+  { label: 'About', href: '/about/' },
+  { label: 'Works', href: '/works/' },
   { label: 'Contact', href: `mailto:theo@theo.com?subject=${encodeURIComponent('お問い合わせ')}` },
 ];
