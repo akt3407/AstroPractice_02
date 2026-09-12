@@ -15,7 +15,7 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
 ---
 
 <div class={className} data-work-item>
-  <button data-modal-open>
+  <button data-modal-open class="cursor-pointer">
     <div class="overflow-hidden">
       <Image
         src={src}
@@ -70,32 +70,16 @@ const { src, title, year, class: className, imgClass, modalImgClass } = Astro.pr
 </div>
 
 <style>
-  /* モーダルの開閉アニメーション
-   *
-   * 開く（数値は下の変数どおり）
-   *   幕     0 ─────────────────────────────── 1300ms
-   *   画像        600 ──────────── 1400ms
-   *   文字/Close                   1400 ─────── 1900ms
-   *
-   * 閉じる（開くときと同じく幕が主役。押した瞬間から動き、向きだけ反転）
-   *   文字/Close 0 ── 250ms
-   *   幕         0 ─────────────────────── 1300ms
-   *   画像          150 ──────── 700ms
-   *
-   * 閉じる側で画像を前倒し・短縮しているのは、幕の上端より画像のワイプを
-   * 先行させないと、消えていく部分が幕の外（＝背景ページ側）に出てしまい、
-   * ワイプが一切見えずフェードのように見えてしまうため。
-   */
   dialog {
     --ease: cubic-bezier(0.65, 0, 0.35, 1);
-    --dur-curtain: 1300ms; /* 黒い幕の上下動 */
-    --delay-image: 600ms; /* 幕が動き出してから画像が出始めるまで */
-    --dur-image: 800ms; /* 画像のワイプ */
-    --dur-meta: 500ms; /* 文字・Closeのフェードイン */
+    --dur-curtain: 1300ms; {/* 黒い幕の上下動 */}
+    --delay-image: 300ms; {/* 幕が動き出してから画像が出始めるまで */}
+    --dur-image: 800ms; {/* 画像のワイプ */}
+    --dur-meta: 75ms; {/* 文字・Closeのフェードイン */}
 
-    --dur-meta-out: 250ms; /* 文字・Closeのフェードアウト */
-    --delay-image-out: 150ms; /* 文字が抜け始めてから画像がワイプするまで */
-    --dur-image-out: 550ms; /* 画像のワイプ（幕に追い越されない長さ） */
+    --dur-meta-out: 250ms; {/* 文字・Closeのフェードアウト */}
+    --delay-image-out: 350ms; {/* 文字が抜け始めてから画像がワイプするまで */}
+    --dur-image-out: 550ms; {/* 画像のワイプ（幕に追い越されない長さ） */}
   }
 
   /* 黒い幕（dialog本体）が下から上へせり上がり、ページに重なる */
